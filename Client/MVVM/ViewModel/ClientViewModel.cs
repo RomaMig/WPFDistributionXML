@@ -1,13 +1,8 @@
 ﻿using Client.MVVM.Model;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Net.Sockets;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Reflection;
+using System.Windows;
 
 namespace Client.MVVM.ViewModel
 {
@@ -15,6 +10,11 @@ namespace Client.MVVM.ViewModel
     {
         private readonly ClientNet client;
         private ClientModel clientModel;
+        private DataModel dataModel;
+        private string signalPath;
+        private string connectionState;
+        private bool _isEnabledConnectButton;
+        private string textConnectButton;
         public ClientModel ClientModel
         {
             get { return clientModel; }
@@ -24,7 +24,33 @@ namespace Client.MVVM.ViewModel
                 OnPropertyChanged("ClientModel");
             }
         }
-        private bool _isEnabledConnectButton;
+        public DataModel DataModel
+        {
+            get { return dataModel; }
+            set
+            {
+                dataModel = value;
+                OnPropertyChanged("DataModel");
+            }
+        }
+        public string SignalPath
+        {
+            get { return signalPath; }
+            set
+            {
+                signalPath = value;
+                OnPropertyChanged("SignalPath");
+            }
+        }
+        public string ConnectionState
+        {
+            get { return connectionState; }
+            set
+            {
+                connectionState = value;
+                OnPropertyChanged("ConnectionState");
+            }
+        }
         public bool isEnabledConnectButton
         {
             get { return _isEnabledConnectButton; }
@@ -34,7 +60,6 @@ namespace Client.MVVM.ViewModel
                 OnPropertyChanged("isEnabledConnectButton");
             }
         }
-        private string textConnectButton;
         public string TextConnectButton
         {
             get { return textConnectButton; }
@@ -49,11 +74,14 @@ namespace Client.MVVM.ViewModel
 
         public ClientViewModel()
         {
+            DataModel = new DataModel();
             ClientModel = new ClientModel { Date = "", Ip = "127.0.0.1", Port = 8080 };
-            client = new ClientNet();
+            client = new ClientNet(DataModel);
 
             TextConnectButton = "Connect";
             isEnabledConnectButton = true;
+            ConnectionState = "Disconnected";
+            SignalPath = "imgs\\red.png";
 
             client.connecting += Connecting;
             client.connected += Connected;
@@ -69,15 +97,21 @@ namespace Client.MVVM.ViewModel
         {
             TextConnectButton = "Connecting...";
             isEnabledConnectButton = false;
+            ConnectionState = "Connecting...";
+            SignalPath = "imgs\\yellow.png";
         }
         private void Connected()
         {
             TextConnectButton = "Disconnect";
+            ConnectionState = "Connected";
+            SignalPath = "imgs\\green.png";
         }
 
         private void Disconnected()
         {
             TextConnectButton = "Connect";
+            ConnectionState = "Disconnected";
+            SignalPath = "imgs\\red.png";
         }
 
         private void ConnectionAttemtComleted()

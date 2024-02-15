@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="ClientNet.cs" />
     <Compile Include="MVVM\Model\ClientModel.cs" />
+    <Compile Include="MVVM\Model\DataModel.cs" />
     <Compile Include="MVVM\Presenter.cs" />
     <Compile Include="MVVM\ViewModel\ClientViewModel.cs" />
     <Compile Include="MVVM\RelayCommand.cs" />
@@ -99,6 +100,20 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\TcpIO\TcpIO.csproj">
+      <Project>{4b0bad4f-8100-45a6-909f-bcf3f602dc67}</Project>
+      <Name>TcpIO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XmlParser\XmlParser.csproj">
+      <Project>{6b6fb03c-97b1-414c-ae84-a2a9e3132c98}</Project>
+      <Name>XmlParser</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="MVVM\View\imgs\green.png" />
+    <Resource Include="MVVM\View\imgs\red.png" />
+    <Resource Include="MVVM\View\imgs\yellow.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

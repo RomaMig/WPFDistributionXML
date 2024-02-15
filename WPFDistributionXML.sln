@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{D9A95CA7-5D30-46A9-87F7-92C86E93B3FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlParser", "XmlParser\XmlParser.csproj", "{6B6FB03C-97B1-414C-AE84-A2A9E3132C98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpIO", "TcpIO\TcpIO.csproj", "{4B0BAD4F-8100-45A6-909F-BCF3F602DC67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{D9A95CA7-5D30-46A9-87F7-92C86E93B3FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9A95CA7-5D30-46A9-87F7-92C86E93B3FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9A95CA7-5D30-46A9-87F7-92C86E93B3FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B6FB03C-97B1-414C-AE84-A2A9E3132C98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B6FB03C-97B1-414C-AE84-A2A9E3132C98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B6FB03C-97B1-414C-AE84-A2A9E3132C98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B6FB03C-97B1-414C-AE84-A2A9E3132C98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B0BAD4F-8100-45A6-909F-BCF3F602DC67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B0BAD4F-8100-45A6-909F-BCF3F602DC67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B0BAD4F-8100-45A6-909F-BCF3F602DC67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B0BAD4F-8100-45A6-909F-BCF3F602DC67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

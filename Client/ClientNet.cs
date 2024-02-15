@@ -1,27 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using TcpIO;
+using System.IO;
+using System.Windows.Markup;
+using Client.MVVM.Model;
 
 namespace Client
 {
     class ClientNet
     {
         private TcpClient client;
+        private PacketReader packetReader;
+        private PacketBuilder packetBuilder;
+        private DataModel data;
+
         public bool Connected { get { return client.Connected; } }
         public event Action<string> msgRequest;
         public event Action connecting;
         public event Action connected;
         public event Action disconnected;
-        public event Action connectionAttemptCompleted; 
+        public event Action connectionAttemptCompleted;
 
-        public ClientNet()
+        public ClientNet(DataModel data)
         {
             client = new TcpClient();
+            packetBuilder = new PacketBuilder();
+            packetReader = new PacketReader();
+            this.data = data;
         }
 
         public void SwitchConnection(string ip, int port)
@@ -60,16 +68,51 @@ namespace Client
             {
                 connectionAttemptCompleted();
             }
+
         }
 
         private async void Process()
         {
             try
             {
-                while (client.Connected)
+                while (client != null && client.Connected)
                 {
-                    var msg = await Request();
-                    msgRequest(msg);
+                    var stream = client.GetStream();
+                    var code = (Code)await packetReader.ReadByte(stream);
+                    if (code <= 0 || !client.Connected)
+                    {
+                        break;
+                    }
+                    switch (code)
+                    {
+                        case Code.Disconnect:
+                            Close();
+                            break;
+                        case Code.Message_Request:
+                            var msg = await packetReader.ReadMessage(stream);
+                            break;
+                        case Code.Data_Request:
+                            try
+                            {
+                                var tmp = await packetReader.ReadData(stream, client,
+                                (BinaryReader br, TcpClient cl) =>
+                                {
+                                    DataModel data = new DataModel();
+                                    data.From = br.ReadString();
+                                    data.HexTextColor = br.ReadString();
+                                    data.Text = br.ReadString();
+                                    data.BinaryImage = br.ReadString();
+                                    return data;
+                                });
+
+                                data.Date = DateTime.Now;
+                                data.From = tmp.From;
+                                data.HexTextColor = tmp.HexTextColor;
+                                data.Text = tmp.Text;
+                                data.BinaryImage = tmp.BinaryImage;
+                            } catch { }
+                            break;
+                    }
                 }
             }
             catch (SocketException ex)
@@ -86,50 +129,24 @@ namespace Client
             }
         }
 
-        private async Task<string> Request()
-        {
-            if (!Connected)
-                return null;
 
-            var stream = client.GetStream();
-            var buffer = new byte[256];
-            var data = new StringBuilder();
-            do
-            {
-                // добавляем в буфер
-                var size = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (size == 0)
-                    throw new SocketException(0);
-                var text = Encoding.UTF8.GetString(buffer, 0, size);
-                data.Append(text);
-            }
-            while (stream.DataAvailable);
-            return data.ToString();
-        }
-
-        private async void Response(string msg)
+        public void RepeatRequest()
         {
             if (!Connected)
                 return;
 
-            var stream = client.GetStream();
-            var data = Encoding.UTF8.GetBytes(msg);
-            await stream.WriteAsync(data, 0, data.Length);
-        }
-
-        public void RepeatRequest()
-        {
-            Response("repeat request");
+            packetBuilder.ResponseCode(client.GetStream(), (byte)Code.Repeat_Request);
         }
 
         public void Close()
         {
             if (Connected)
             {
-                disconnected();
+                packetBuilder.ResponseCode(client.GetStream(), (byte)Code.Disconnect);
                 client.Close();
                 client.Dispose();
             }
+            disconnected();
         }
     }
 }

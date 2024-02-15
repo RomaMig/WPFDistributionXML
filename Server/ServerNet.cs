@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows;
+using Server.MVVM.Model;
+using System.IO;
+using TcpIO;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Server
 {
@@ -15,15 +16,22 @@ namespace Server
         private bool isRun;
         private TcpListener server;
         private List<TcpClient> clients;
+        private DataModel data;
+        private PacketReader packetReader;
+        private PacketBuilder packetBuilder;
 
         public event Action serverStarted;
         public event Action serverStoped;
         public event Action<TcpClient> clientConnected;
         public event Action<TcpClient> clientDisconnected;
 
-        public ServerNet()
+        public ServerNet(DataModel data)
         {
             isRun = false;
+            clients = new List<TcpClient>();
+            packetBuilder = new PacketBuilder();
+            packetReader = new PacketReader();
+            this.data = data;
         }
 
 
@@ -85,67 +93,61 @@ namespace Server
                 bool isConnected = true;
                 while (isConnected)
                 {
-                    var msg = await Request(stream);
-
-                    switch (msg)
+                    var code = (Code)await packetReader.ReadByte(stream);
+                    if (!client.Connected)
                     {
-                        case "repeat request":
-                            Response(stream, DateTime.Now.ToLongTimeString());
+                        isConnected = false;
+                        break;
+                    }
+                    switch (code)
+                    {
+                        case Code.Disconnect:
+                            isConnected = false;
                             break;
-                        case "":
-                            isConnected = false; 
+                        case Code.Message_Request:
+                            var msg = await packetReader.ReadMessage(stream);
+                            break;
+                        case Code.Repeat_Request:
+                            DistributeInfo(client);
                             break;
                     }
                 }
             }
-            catch (Exception ex) //Если клиент отключился
+            catch (Exception ex)
             {
             }
             finally
             {
+                if (client.Connected)
+                    packetBuilder.ResponseCode(client.GetStream(), (byte)Code.Disconnect);
                 clientDisconnected(client);
                 clients.Remove(client);
                 client.Close();
             }
         }
 
-        private async Task<string> Request(NetworkStream stream)
+        private void DistributeInfo(TcpClient client)
         {
-            var buffer = new byte[256];
-            var data = new StringBuilder();
-            // считываем данные до конечного символа
-            do
+            if (client != null && client.Connected && data.isFilled)
             {
-                // добавляем в буфер
-                var size = await stream.ReadAsync(buffer, 0, buffer.Length);
-                var text = Encoding.UTF8.GetString(buffer, 0, size);
-                data.Append(text);
-            }
-            while (stream.DataAvailable);
-            return data.ToString();
-        }
-
-        private async void Response(NetworkStream stream, string msg)
-        {
-            var data = Encoding.UTF8.GetBytes(msg);
-            try
-            {
-                await stream.WriteAsync(data, 0, data.Length);
-            }
-            catch (Exception ex)
-            {
-
+                var stream = client.GetStream();
+                packetBuilder.ResponseCode(stream, (byte)Code.Data_Request);
+                packetBuilder.ResponseData(stream,
+                    (BinaryWriter bw) =>
+                    {
+                        bw.Write(data.From);
+                        bw.Write(data.HexTextColor);
+                        bw.Write(data.Text);
+                        bw.Write(data.BinaryImage);
+                    });
             }
         }
 
-        public void DistributionInfo()
+        public void BroadcastInfo()
         {
             foreach (var client in clients)
             {
-                if (client != null && client.Connected)
-                {
-                    Response(client.GetStream(), DateTime.Now.ToLongTimeString());
-                }
+                DistributeInfo(client);
             }
         }
 
@@ -157,6 +159,7 @@ namespace Server
                 clients.ForEach(c =>
                 {
                     clientDisconnected(c);
+                    packetBuilder.ResponseCode(c?.GetStream(), (byte)Code.Disconnect);
                     c?.Close();
                 });
                 clients.Clear();

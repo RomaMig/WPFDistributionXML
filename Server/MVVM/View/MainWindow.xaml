@@ -3,28 +3,91 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Server" 
         xmlns:viewmodel="clr-namespace:Server.MVVM.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:ServerViewModel}"
         mc:Ignorable="d"
-        Title="MainWindow" Height="408" Width="457">
+        Title="Server" Height="370" Width="875" MinWidth="450" MinHeight="370">
     <Grid>
-        <Button x:Name="btStart" Command="{Binding Start}" Content="{Binding TextStartButton, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="196,28,0,0" VerticalAlignment="Top" Height="20" Width="167"/>
-        <Button x:Name="btDistribution" Command="{Binding Distribution}" Content="Distribution" HorizontalAlignment="Left" Margin="196,53,0,0" VerticalAlignment="Top" Width="167"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*" MinWidth="250"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*" MinWidth="300"/>
+        </Grid.ColumnDefinitions>
 
-        <Grid DataContext="{Binding ServerModel}">
-            <TextBox x:Name="tbIp" Text="{Binding Ip, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="56,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-            <TextBox x:Name="tbPort" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="56,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-            <Label x:Name="lIp" Content="IP" HorizontalAlignment="Left" Margin="39,25,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.635,-0.081"/>
-            <Label x:Name="lPort" Content="Port" HorizontalAlignment="Left" Margin="27,51,0,0" VerticalAlignment="Top"/>
+        <Menu VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0">
+            <MenuItem Header="Open file" Command="{Binding OpenFile}"></MenuItem>
+        </Menu>
+        <StackPanel Grid.Column="0" Grid.Row="1">
+            <Grid Margin="15, 10, 15, 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="31"></RowDefinition>
+                    <RowDefinition Height="31"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition  Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lIp" Content="IP" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <TextBox x:Name="tbIp" DataContext="{Binding ServerModel}" Text="{Binding Ip, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="0" Margin="5" MinWidth="80"/>
+                <Button x:Name="btStart" Command="{Binding Start}" Content="{Binding TextStartButton, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="0" Margin="5"/>
+
+                <Label x:Name="lPort" Content="Port" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right"/>
+                <TextBox x:Name="tbPort" DataContext="{Binding ServerModel}" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"  Grid.Column="1" Grid.Row="1" Margin="5" MinWidth="80"/>
+                <Button x:Name="btBroadcast" Command="{Binding Broadcast}" Content="Broadcast" Grid.Column="2" Grid.Row="1" Margin="5"/>
+            </Grid>
+            <Label x:Name="lClientsInfo" Content="Information about clients (IP:PORT)" HorizontalAlignment="Left" Margin="15, 0, 0, 0"/>
+            <ListBox ItemsSource="{Binding ClientsInfo}" SelectionMode="Extended" Margin="20, 0, 20, 0" MinHeight="200" MaxHeight="200" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Path=Client.RemoteEndPoint}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <Grid Grid.Column="2" Grid.Row="1" DataContext="{Binding DataModel}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*" MinWidth="150"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*" MinWidth="150"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="lFormatVersion" Content="FormatVersion" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right"/>
+                <Label x:Name="lFrom" Content="From" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right"/>
+                <Label x:Name="lTo" Content="To" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right"/>
+                <Label x:Name="lId" Content="Message id" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right"/>
+                <Label x:Name="lColor" Content="Color" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Right"/>
+                <Label x:Name="lText" Content="Text" Grid.Column="0" Grid.Row="5" HorizontalAlignment="Right"/>
+
+                <Label x:Name="lFormatVersionValue" Content="{Binding FormatVersion, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left"/>
+                <Label x:Name="lFromValue" Content="{Binding From, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"/>
+                <Label x:Name="lToValue" Content="{Binding To, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left"/>
+                <Label x:Name="lIdValue" Content="{Binding Id, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"/>
+                <Label x:Name="lColorValue" Content="{Binding HexTextColor, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left"/>
+                <Label x:Name="lTextValue" Content="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" Foreground="{Binding HexTextColor, UpdateSourceTrigger=PropertyChanged}"/>
+            </Grid>
+            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+            <Image x:Name="image" Source="{Binding Image, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Visibility="Visible" Margin="5"/>
         </Grid>
-        <ListBox ItemsSource="{Binding ClientsInfo}" SelectionMode="Extended" Margin="0,118,0,0">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Path=Client.RemoteEndPoint}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
     </Grid>
 </Window>

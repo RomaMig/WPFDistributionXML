@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,12 +56,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MVVM\Model\DataModel.cs" />
     <Compile Include="MVVM\Model\ServerModel.cs" />
     <Compile Include="MVVM\Presenter.cs" />
     <Compile Include="MVVM\ViewModel\ServerViewModel.cs" />
     <Compile Include="MVVM\RelayCommand.cs" />
     <Compile Include="ServerNet.cs" />
-    <Compile Include="XmlParser.cs" />
     <Page Include="MVVM\View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -100,6 +101,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\TcpIO\TcpIO.csproj">
+      <Project>{4b0bad4f-8100-45a6-909f-bcf3f602dc67}</Project>
+      <Name>TcpIO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XmlParser\XmlParser.csproj">
+      <Project>{6b6fb03c-97b1-414c-ae84-a2a9e3132c98}</Project>
+      <Name>XmlParser</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

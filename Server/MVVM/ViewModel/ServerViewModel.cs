@@ -1,15 +1,9 @@
-﻿using Server.MVVM.Model;
+﻿using Microsoft.Win32;
+using Server.MVVM.Model;
+using Parser;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace Server.MVVM.ViewModel
 {
@@ -26,6 +20,16 @@ namespace Server.MVVM.ViewModel
                 OnPropertyChanged("ServerModel");
             }
         }
+        private DataModel dataModel;
+        public DataModel DataModel
+        {
+            get { return dataModel; }
+            set
+            {
+                dataModel = value;
+                OnPropertyChanged("DataModel");
+            }
+        }
         private string textStartButton;
         public string TextStartButton
         {
@@ -40,13 +44,15 @@ namespace Server.MVVM.ViewModel
         public ObservableCollection<TcpClient> ClientsInfo { get; set; }
 
         public RelayCommand Start { get; set; }
-        public RelayCommand Distribution { get; set; }
+        public RelayCommand Broadcast { get; set; }
+        public RelayCommand OpenFile { get; set; }
 
         public ServerViewModel()
         {
             ClientsInfo = new ObservableCollection<TcpClient>();
-            ServerModel = new ServerModel() { Date = "", Ip = "127.0.0.1", Port = 8080 };
-            server = new ServerNet();
+            DataModel = new DataModel();
+            ServerModel = new ServerModel() { Ip = "127.0.0.1", Port = 8080 };
+            server = new ServerNet(DataModel);
 
             TextStartButton = "Start";
 
@@ -56,7 +62,8 @@ namespace Server.MVVM.ViewModel
             server.clientDisconnected += ClientDisconnected;
 
             Start = new RelayCommand(o => server.SwitchMode(ServerModel.Ip, ServerModel.Port));
-            Distribution = new RelayCommand(o => server.DistributionInfo());
+            Broadcast = new RelayCommand(o => server.BroadcastInfo());
+            OpenFile = new RelayCommand(o => Browse(o));
         }
 
         private void ServerStarted()
@@ -83,6 +90,24 @@ namespace Server.MVVM.ViewModel
             {
                 ClientsInfo.Remove(client);
             } catch(Exception ex) { }
+        }
+        private void Browse(object param)
+        {
+            OpenFileDialog d = new OpenFileDialog();
+            d.Filter = "XML файл (*.xml)|*.xml";
+            d.CheckFileExists = true;
+            d.CheckPathExists = true;
+            
+            if (d.ShowDialog() == true)
+            {
+                XmlParser parser = new XmlParser();
+
+                parser.Load(d.FileName);
+                var page = parser.Parse() as Page;
+
+                DataModel.setPage(page);
+                server.BroadcastInfo();
+            }
         }
 
         public void Closing(object sender, EventArgs e)
