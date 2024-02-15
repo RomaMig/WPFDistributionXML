@@ -5,18 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="403" Width="418"
-        Closing="{Binding Close}">
+        Title="MainWindow" Height="403" Width="418">
     <Grid>
         <Button x:Name="btConnect" Command="{Binding Connect}" Content="{Binding TextConnectButton, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding isEnabledConnectButton, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="193,30,0,0" VerticalAlignment="Top" Height="20" Width="167"/>
         <Button x:Name="btRequest" Command="{Binding RepeatRequest}" Content="Повторный запрос" HorizontalAlignment="Left" Margin="193,56,0,0" VerticalAlignment="Top" Width="167"/>
 
-        <StackPanel Grid.Column="1" Grid.Row="2" DataContext="{Binding Client}">
+        <Grid DataContext="{Binding ClientModel}">
             <TextBox x:Name="tbIp" Text="{Binding Ip, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="56,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
             <TextBox x:Name="tbPort" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="56,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
             <Label x:Name="lIp" Content="IP" HorizontalAlignment="Left" Margin="36,27,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.635,-0.081"/>
             <Label x:Name="lPort" Content="Port" HorizontalAlignment="Left" Margin="24,53,0,0" VerticalAlignment="Top"/>
             <Label x:Name="Date" Content="{Binding Date, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="56,80,0,0" VerticalAlignment="Top"/>
-        </StackPanel>
+        </Grid>
     </Grid>
 </Window>

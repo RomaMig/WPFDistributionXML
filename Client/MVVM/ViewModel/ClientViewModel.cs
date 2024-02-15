@@ -1,5 +1,4 @@
-﻿using Client.Core;
-using Client.MVVM.Model;
+﻿using Client.MVVM.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,17 +11,17 @@ using System.Threading.Tasks;
 
 namespace Client.MVVM.ViewModel
 {
-    internal class ClientViewModel : INotifyPropertyChanged
+    internal class ClientViewModel : Presenter
     {
         private readonly ClientNet client;
-        private ClientModel _client;
-        public ClientModel Client
+        private ClientModel clientModel;
+        public ClientModel ClientModel
         {
-            get { return _client; }
+            get { return clientModel; }
             set
             {
-                _client = value;
-                OnPropertyChanged("Client");
+                clientModel = value;
+                OnPropertyChanged("ClientModel");
             }
         }
         private bool _isEnabledConnectButton;
@@ -35,13 +34,13 @@ namespace Client.MVVM.ViewModel
                 OnPropertyChanged("isEnabledConnectButton");
             }
         }
-        private string _textConnectButton;
+        private string textConnectButton;
         public string TextConnectButton
         {
-            get { return _textConnectButton; }
+            get { return textConnectButton; }
             set
             {
-                _textConnectButton = value;
+                textConnectButton = value;
                 OnPropertyChanged("TextConnectButton");
             }
         }
@@ -50,35 +49,30 @@ namespace Client.MVVM.ViewModel
 
         public ClientViewModel()
         {
-            Client = new ClientModel { Date = "", Ip = "127.0.0.1", Port = 8080 };
+            ClientModel = new ClientModel { Date = "", Ip = "127.0.0.1", Port = 8080 };
             client = new ClientNet();
 
             TextConnectButton = "Connect";
             isEnabledConnectButton = true;
 
+            client.connecting += Connecting;
+            client.connected += Connected;
             client.disconnected += Disconnected;
             client.connectionAttemptCompleted += ConnectionAttemtComleted;
+            client.msgRequest += msgRequest;
 
-            Connect = new RelayCommand(o => ConnectToServer());
+            Connect = new RelayCommand(o => client.SwitchConnection(ClientModel.Ip, ClientModel.Port));
             RepeatRequest = new RelayCommand(o => client.RepeatRequest());
         }
 
-        private void ConnectToServer()
+        private void Connecting()
         {
-            if (!client.Connected)
-            {
-                TextConnectButton = "Connecting...";
-                isEnabledConnectButton = false;
-
-                client.Connect(Client.Ip, Client.Port);
-            }
-            else
-            {
-                client.Response("disconnect");
-                TextConnectButton = "Connect";
-
-                client.Close();
-            }
+            TextConnectButton = "Connecting...";
+            isEnabledConnectButton = false;
+        }
+        private void Connected()
+        {
+            TextConnectButton = "Disconnect";
         }
 
         private void Disconnected()
@@ -91,16 +85,14 @@ namespace Client.MVVM.ViewModel
             isEnabledConnectButton = true;
         }
 
+        private void msgRequest(string msg)
+        {
+            ClientModel.Date = msg;
+        }
+
         public void Closing(object sender, EventArgs e)
         {
             client.Close();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Server.MVVM.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,9 @@ namespace Server
         public MainWindow()
         {
             InitializeComponent();
+            var svm = new ServerViewModel();
+            DataContext = svm;
+            Closing += svm.Closing;
         }
     }
 }

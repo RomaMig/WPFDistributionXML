@@ -57,8 +57,9 @@
     </ApplicationDefinition>
     <Compile Include="ClientNet.cs" />
     <Compile Include="MVVM\Model\ClientModel.cs" />
+    <Compile Include="MVVM\Presenter.cs" />
     <Compile Include="MVVM\ViewModel\ClientViewModel.cs" />
-    <Compile Include="RelayCommand.cs" />
+    <Compile Include="MVVM\RelayCommand.cs" />
     <Page Include="MVVM\View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    internal class Server
+    internal class XmlParser
     {
-        public Server() { }
+
     }
 }

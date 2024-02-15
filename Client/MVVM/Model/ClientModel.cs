@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Client.MVVM.Model
 {
-    class ClientModel : INotifyPropertyChanged
+    class ClientModel : Presenter
     {
         private string date;
         private string ip;
@@ -40,14 +40,6 @@ namespace Client.MVVM.Model
                 port = value;
                 OnPropertyChanged("Port");
             }
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
     }
 }

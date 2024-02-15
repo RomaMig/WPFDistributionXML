@@ -56,9 +56,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="MVVM\Model\ServerModel.cs" />
+    <Compile Include="MVVM\Presenter.cs" />
     <Compile Include="MVVM\ViewModel\ServerViewModel.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="MVVM\RelayCommand.cs" />
+    <Compile Include="ServerNet.cs" />
+    <Compile Include="XmlParser.cs" />
     <Page Include="MVVM\View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

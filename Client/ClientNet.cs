@@ -14,6 +14,8 @@ namespace Client
         private TcpClient client;
         public bool Connected { get { return client.Connected; } }
         public event Action<string> msgRequest;
+        public event Action connecting;
+        public event Action connected;
         public event Action disconnected;
         public event Action connectionAttemptCompleted; 
 
@@ -22,13 +24,28 @@ namespace Client
             client = new TcpClient();
         }
 
-        public async void Connect(string ip, int port)
+        public void SwitchConnection(string ip, int port)
         {
-            var _ip = IPAddress.Parse(ip); //TODO: Проверить на правильность
+            if (!client.Connected)
+            {
+                connecting();
+                Connect(ip, port);
+            }
+            else
+            {
+                Close();
+            }
+        }
+
+        private async void Connect(string ip, int port)
+        {
             try
             {
-                await client.ConnectAsync(_ip, port);
+                var _ip = IPAddress.Parse(ip);
 
+                client = new TcpClient();
+                await client.ConnectAsync(_ip, port);
+                connected();
                 Process();
             }
             catch (Exception ex)
@@ -37,7 +54,7 @@ namespace Client
                 {
 
                 }
-                disconnected();
+                Close();
             }
             finally
             {
@@ -45,12 +62,7 @@ namespace Client
             }
         }
 
-        public void RepeatRequest()
-        {
-            Response("repeat request");
-        }
-
-        async void Process()
+        private async void Process()
         {
             try
             {
@@ -70,12 +82,11 @@ namespace Client
             }
             finally
             {
-                disconnected();
                 Close();
             }
         }
 
-        public async Task<string> Request()
+        private async Task<string> Request()
         {
             if (!Connected)
                 return null;
@@ -96,7 +107,7 @@ namespace Client
             return data.ToString();
         }
 
-        public async void Response(string msg)
+        private async void Response(string msg)
         {
             if (!Connected)
                 return;
@@ -106,10 +117,19 @@ namespace Client
             await stream.WriteAsync(data, 0, data.Length);
         }
 
+        public void RepeatRequest()
+        {
+            Response("repeat request");
+        }
+
         public void Close()
         {
             if (Connected)
+            {
+                disconnected();
                 client.Close();
+                client.Dispose();
+            }
         }
     }
 }
